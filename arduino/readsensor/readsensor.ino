@@ -15,7 +15,7 @@ void setup(){
 void loop(){
   valueSensor = analogRead(pinSensor);
   temp = valueSensor*0.48828125;
-  Serial.println(valueSensor);
-  Serial.println(temp);
+  //Serial.println(valueSensor);
+  Serial.print(temp);
   delay(1000);
 }
