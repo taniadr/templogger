@@ -1,25 +1,16 @@
-var express = require('express');
-var http = require('http');
-var Firebase = require('firebase');
-var request = require('request');
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
-var app = express();
-var myFireRef = new Firebase("https://templogger.firebaseio.com/Living-Room/temperature");
+server.listen(80);
 
-//each time i do a request, it logs datapack
 app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/index.html');
+});
 
-  myFireRef.once("value", function(snapshot) {
-    snapshot.forEach(function(childSnapshot){
-      var childData = childSnapshot.val();
-      datapck = {
-        datej:childData.date,
-        timej:childData.time
-      };
-      console.log(datapck);
-      res.write(JSON.stringify(datapck, null, 3));
-    });
-    res.end('end');
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
   });
 });
-app.listen(process.env.PORT || 8080);
