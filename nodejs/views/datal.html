@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block title %}Data List{% endblock %}
+
+{% block body %}
+<ul>
+    {% for datapck in datal %}
+    <li><a href="/datal/{{ loop.index0 }}"> {{ datapck.datej }}</a> - Time {{ datapck.timej }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

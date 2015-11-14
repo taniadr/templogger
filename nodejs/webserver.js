@@ -1,42 +1,51 @@
-var express = require('express');
 var http = require('http');
+var express = require('express'),
+swig = require ('swig'),
+app = express(),
+datal;
+//var app = express();
+var server = http.createServer(app);
 var Firebase = require('firebase');
 var request = require('request');
-var app = express();
-var io = require('socket.io')(express().server);
-
+var bodyParser = require('body-parser');
 var myFireRef = new Firebase("https://templogger.firebaseio.com/Living-Room/temperature");
-app.use(express.static('public'));
-//each time i do a request, it logs datapack
-var swig  = require('swig');
+var socket = require('socket.io')(myFireRef);
+//var swig  = require('swig');
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({
+  //    extended: true  }));
 
-app.get('/in', function (req, res) {
-  res.render('./index.html', {title: 'Oi'});
-  res.end();
-})
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
+app.set('views', __dirname + '/views');
+//added res.sendFile(index.html)
 
 app.get('/', function (req, res) {
-  res.end('end');
+  //res.sendFile(__dirname + '/index.html');
+  res.render('index', {});
 });
+//tem que ver como passar essa bagaça direito
+app.get('/datal', function (req, res) {
+  res.render('datal', { datal: datal });
+});
+var io = require('socket.io')();
+io.on('connection', function(socket){
+  socket.emit('an event', { some: 'data' });
+});
+var nsp = io.of('/datal');
+io.emit('an event sent to all connected clients');
 
-myFireRef.on("value", function(snapshot) {
-  snapshot.forEach(function(childSnapshot){
-    var childData = childSnapshot.val();
-    datapck = {
+myFireRef.on('child_added', function(snapshot, prevChildKey) {
+    var childData = snapshot.val();
+    datajpck = {
       datej:childData.date,
       timej:childData.time
     };
-    console.log(datapck);
-    //{datex: datapck.datej, timex: datapck.timej});
-    //res.write(JSON.stringify(datapck, null, 3));
-  });
-});
-
-io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+    console.log(datajpck);
+    JSON.stringify(datajpck, null, 3); //aki tem q passar a bagaça certinho
+  //  io.sockets
+    swig.render('datapck/:value', { datapck: datal[ childData.val() ] } );
+    //res.render('person', { person: people[req.params.id] });
 });
 
 app.listen(process.env.PORT || 8080);
